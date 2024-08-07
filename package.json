@@ -1,0 +1,13 @@
+{
+  "name": "webgpu-demo",
+  "source": "src/index.html",
+  "scripts": {
+    "start": "parcel",
+    "build": "parcel build"
+  },
+  "devDependencies": {
+    "@webgpu/types": "^0.1.44",
+    "parcel": "^2.12.0",
+    "typescript": "^5.5.4"
+  }
+}

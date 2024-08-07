@@ -1,4 +1,4 @@
-
+/// <reference types="@webgpu/types" />
 
 async function init() {
 
@@ -23,7 +23,7 @@ async function init() {
     });
 
     // configure canvas element
-    const canvas = document.querySelector('#webgpu-canvas');
+    const canvas = document.querySelector('#webgpu-canvas') as HTMLCanvasElement;
     if (!canvas) {
         console.error('No canvas found to render to!');
     }
@@ -73,7 +73,7 @@ async function init() {
     ];
 
     // define configuration of the render pipeline's stages
-    const pipelineDescriptor = {
+    const pipelineDescriptor : GPURenderPipelineDescriptor = {
         vertex: {
             module: shaderModule_demo,      // see 'shaders/demo.wgsl'
             entryPoint: "vertex_main",
