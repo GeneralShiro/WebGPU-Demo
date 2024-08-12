@@ -151,4 +151,8 @@ async function fetchShaderFile(id) {
     }
 }
 
+async function loadModel(id) {
+    
+}
+
 document.addEventListener('DOMContentLoaded', init);
