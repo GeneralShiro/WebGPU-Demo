@@ -5,7 +5,7 @@
     "clean-dist": "rm -rf dist && mkdir dist",
     "copy-assets": "cp -r src/assets/* dist",
     "init": "npm run clean-dist && npm run copy-assets",
-    "start": "npm run init && parcel src/index.html",
+    "start": "npm run build && parcel src/index.html",
     "build": "npm run init && parcel build src/index.html"
   },
   "devDependencies": {
