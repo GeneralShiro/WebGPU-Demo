@@ -1,7 +1,8 @@
 /// <reference types="@webgpu/types" />
 
-async function init() {
+import { shadersMap } from "./shaders-map";
 
+async function init() {
     // determine if the browser supports WebGPU
     if (!navigator.gpu) {
         throw Error("WebGPU not supported.");
@@ -17,7 +18,7 @@ async function init() {
     const device = await adapter.requestDevice();
 
     // create shader modules
-    const shader_demo = await fetchShaderFile('shader-demo');
+    const shader_demo = await fetchShaderFile('demo');
     const shaderModule_demo = device.createShaderModule({
         code: shader_demo
     });
@@ -73,7 +74,7 @@ async function init() {
     ];
 
     // define configuration of the render pipeline's stages
-    const pipelineDescriptor : GPURenderPipelineDescriptor = {
+    const pipelineDescriptor: GPURenderPipelineDescriptor = {
         vertex: {
             module: shaderModule_demo,      // see 'shaders/demo.wgsl'
             entryPoint: "vertex_main",
@@ -129,14 +130,18 @@ async function init() {
  * @summary Try to fetch the WGSL shader code from a loaded .wgsl file, placed in the <head> of the index HTML file.
  */
 async function fetchShaderFile(id) {
-    // get <script> tag with matching id
-    const scriptElmnt = document.querySelector(`#${id}`);
-    if (!scriptElmnt) {
-        console.warn(`Script tag with id \"${id}\" not found!`)
+    // find source path from array of shaders
+    let src;
+    for (let i = 0; i < shadersMap.length; i++) {
+        if (shadersMap[i].id === id) {
+            src = shadersMap[i].src;
+            break;
+        }
+    }
+    if (!src) {
+        console.error(`Failed to find shader with \"${id}\"!`);
         return;
     }
-
-    const src = scriptElmnt.getAttribute('src');
 
     // try to fetch the text of the shader from the specified file
     try {
@@ -152,7 +157,7 @@ async function fetchShaderFile(id) {
 }
 
 async function loadModel(id) {
-    
+
 }
 
 document.addEventListener('DOMContentLoaded', init);

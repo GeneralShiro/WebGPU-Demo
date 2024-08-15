@@ -3,10 +3,10 @@
   "source": "src/index.html",
   "scripts": {
     "clean-dist": "rm -rf dist && mkdir dist",
-    "copy-assets": "cp -r src/assets/* dist",
+    "copy-assets": "cp -r src/assets dist",
     "init": "npm run clean-dist && npm run copy-assets",
-    "start": "npm run build && parcel src/index.html",
-    "build": "npm run init && parcel build src/index.html"
+    "start": "npm run build && npx parcel",
+    "build": "npm run init && npx parcel build"
   },
   "devDependencies": {
     "@webgpu/types": "^0.1.44",
