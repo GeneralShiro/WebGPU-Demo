@@ -32,6 +32,7 @@ async function init() {
     context.configure({
         device: device,
         format: navigator.gpu.getPreferredCanvasFormat(),
+        usage: GPUTextureUsage.RENDER_ATTACHMENT,
         alphaMode: "premultiplied"
     });
 
@@ -46,39 +47,44 @@ async function init() {
     ]);
 
     // create a buffer on device
+    /* 
     const vertexBuffer = device.createBuffer({
         size: vertices.byteLength,
         usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST
     });
-    device.queue.writeBuffer(vertexBuffer, 0, vertices, 0, vertices.length);
+    device.queue.writeBuffer(vertexBuffer, 0, vertices, 0, vertices.length);*/
+    const vertexBuffer: GPUBuffer = createGPUBuffer(device, vertices, GPUBufferUsage.VERTEX);
 
-    // -- create render pipeline --
     // define how the buffer data should be viewed by the shader module
-    const vertexBuffers = [
+    const vertexBufferLayout: GPUVertexBufferLayout[] = [
         {
             attributes: [
                 {
-                    shaderLocation: 0, // position
+                    shaderLocation: 0,      // position
                     offset: 0,
-                    format: "float32x4",
+                    format: "float32x4",    // 16-bytes
                 },
                 {
-                    shaderLocation: 1, // color
+                    shaderLocation: 1,      // color
                     offset: 16,
                     format: "float32x4",
                 },
             ],
-            arrayStride: 32,
+            arrayStride: 32,    // each vertex has position (16-bytes) and color (16-bytes) = 32
             stepMode: "vertex",
         },
     ];
 
-    // define configuration of the render pipeline's stages
+    // -- create render pipeline --
+    // create pipeline layout
+    const pipelineLayoutDesc: GPUPipelineLayoutDescriptor = { bindGroupLayouts: [] };
+    const layout = device.createPipelineLayout(pipelineLayoutDesc);
+    // define configuration of the render pipeline's stages    
     const pipelineDescriptor: GPURenderPipelineDescriptor = {
         vertex: {
             module: shaderModule_demo,      // see 'shaders/demo.wgsl'
             entryPoint: "vertex_main",
-            buffers: vertexBuffers,
+            buffers: vertexBufferLayout,
         },
         fragment: {
             module: shaderModule_demo,      // see 'shaders/demo.wgsl'
@@ -92,9 +98,8 @@ async function init() {
         primitive: {
             topology: "triangle-list",      // we'll draw triangles for this demo
         },
-        layout: "auto"
+        layout: layout
     };
-
     // create GPURenderPipepline object
     const renderPipeline = device.createRenderPipeline(pipelineDescriptor);
 
@@ -115,6 +120,8 @@ async function init() {
         ]
     }
     const passEncoder = commandEncoder.beginRenderPass(renderPassDesc);
+
+    passEncoder.setViewport(0, 0, canvas.width, canvas.height, 0, 1);
 
     // draw demo triangle
     passEncoder.setPipeline(renderPipeline);
@@ -158,6 +165,40 @@ async function fetchShaderFile(id) {
 
 async function loadModel(id) {
 
+}
+
+function createGPUBuffer(device: GPUDevice, buffer, usage: GPUBufferUsageFlags) {
+    const bufferDesc: GPUBufferDescriptor = {
+        size: buffer.byteLength,
+        usage: usage,
+        mappedAtCreation: true
+    };
+    let gpuBuffer = device.createBuffer(bufferDesc);
+
+    if (buffer instanceof Float32Array) {
+        const writeArrayNormal = new Float32Array(gpuBuffer.getMappedRange());
+        writeArrayNormal.set(buffer);
+    }
+    else if (buffer instanceof Uint32Array) {
+        const writeArrayNormal = new Uint32Array(gpuBuffer.getMappedRange());
+        writeArrayNormal.set(buffer);
+    }
+    else if (buffer instanceof Uint16Array) {
+        const writeArrayNormal = new Uint16Array(gpuBuffer.getMappedRange());
+        writeArrayNormal.set(buffer);
+    }
+    else if (buffer instanceof Uint8Array) {
+        const writeArrayNormal = new Uint8Array(gpuBuffer.getMappedRange());
+        writeArrayNormal.set(buffer);
+    }
+    else {
+        const writeArrayNormal = new Float32Array(gpuBuffer.getMappedRange());
+        writeArrayNormal.set(buffer);
+        console.error("Unhandled buffer format ", typeof gpuBuffer);
+    }
+
+    gpuBuffer.unmap();
+    return gpuBuffer;
 }
 
 document.addEventListener('DOMContentLoaded', init);

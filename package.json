@@ -6,11 +6,14 @@
     "copy-assets": "cp -r src/assets dist",
     "init": "npm run clean-dist && npm run copy-assets",
     "start": "npm run build && npx parcel",
-    "build": "npm run init && npx parcel build"
+    "build": "npm run init && npx parcel build --no-cache"
   },
   "devDependencies": {
     "@webgpu/types": "^0.1.44",
     "parcel": "^2.12.0",
     "typescript": "^5.5.4"
+  },
+  "dependencies": {
+    "gl-matrix": "^3.4.3"
   }
 }
